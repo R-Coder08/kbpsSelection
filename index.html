@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kbpsSelection - Online Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Reset and Base Styles */
         * {
@@ -30,6 +31,9 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         
         .logo {
@@ -94,6 +98,26 @@
             color: #3498db;
         }
         
+        /* Search Bar */
+        .search-container {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
         /* Scroll Controls */
         .scroll-controls {
             position: fixed;
@@ -144,6 +168,7 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            position: relative;
         }
         
         .product-card:hover {
@@ -151,10 +176,41 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
-        .product-image {
+        .product-image-container {
+            position: relative;
             width: 100%;
             height: 200px;
+            overflow: hidden;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        
+        .view-fullscreen {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .product-card:hover .view-fullscreen {
+            opacity: 1;
         }
         
         .product-info {
@@ -171,6 +227,12 @@
             font-weight: bold;
             color: #e74c3c;
             margin-bottom: 0.5rem;
+        }
+        
+        .product-rating {
+            color: #f39c12;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
         
         .get-btn {
@@ -205,12 +267,20 @@
             display: block;
         }
         
-        .product-page-image {
+        .product-page-image-container {
+            position: relative;
             width: 100%;
             height: 400px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-page-image {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 1.5rem;
+            cursor: pointer;
         }
         
         .product-page-title {
@@ -223,6 +293,12 @@
             font-size: 1.5rem;
             color: #e74c3c;
             margin-bottom: 1rem;
+        }
+        
+        .product-page-rating {
+            color: #f39c12;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
         
         .product-page-date {
@@ -286,6 +362,80 @@
         .back-btn:hover {
             background-color: #7f8c8d;
         }
+        
+        /* Fullscreen Image */
+        .fullscreen-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .fullscreen-image.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .fullscreen-image img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        /* Long Scrollbar */
+        .long-scrollbar {
+            position: fixed;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 200px;
+            background-color: rgba(44, 62, 80, 0.3);
+            border-radius: 4px;
+            z-index: 100;
+        }
+        
+        .scroll-thumb {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            background-color: #2c3e50;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .scroll-thumb:hover {
+            background-color: #3498db;
+        }
+        
+        /* No Results Message */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
@@ -298,11 +448,20 @@
     <!-- Sidebar Menu -->
     <div class="sidebar">
         <button class="sidebar-close">×</button>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search products..." id="search-input">
+        </div>
         <div class="sidebar-menu">
             <a href="#products">Products</a>
+            <a href="#about">About Us</a>
             <a href="#help">Help Center</a>
             <a href="#feedback">Feedback</a>
         </div>
+    </div>
+    
+    <!-- Long Scrollbar -->
+    <div class="long-scrollbar">
+        <div class="scroll-thumb" id="scroll-thumb"></div>
     </div>
     
     <!-- Scroll Controls -->
@@ -318,68 +477,59 @@
     
     <!-- Product Page (hidden by default) -->
     <div class="product-page" id="product-page">
-        <img class="product-page-image" id="product-page-image" src="" alt="Product Image">
+        <div class="product-page-image-container">
+            <img class="product-page-image" id="product-page-image" src="" alt="Product Image">
+        </div>
         <h1 class="product-page-title" id="product-page-title">Product Title</h1>
         <div class="product-page-price" id="product-page-price">$0.00</div>
+        <div class="product-page-rating" id="product-page-rating"></div>
         <div class="product-page-date" id="product-page-date">Published: Jan 1, 2023</div>
         <p class="product-page-description" id="product-page-description">Product description goes here.</p>
         <div class="action-buttons">
             <button class="action-btn share-btn" id="share-btn">Share</button>
             <button class="action-btn download-btn" id="download-btn">Download</button>
         </div>
-        <a href="#" class="back-btn" id="back-btn">Back to Products</a>
+        <button class="back-btn" id="back-btn">Back To Products</button>
+    </div>
+    
+    <!-- Fullscreen Image Viewer -->
+    <div class="fullscreen-image" id="fullscreen-image">
+        <button class="close-fullscreen">×</button>
+        <img id="fullscreen-image-content" src="" alt="Fullscreen Image">
     </div>
     
     <script>
-        // Sample product data
+        // Sample product data with ratings
         const products = [
             {
                 id: 1,
-                title: "Premium Headphones",
-                price: "$199.99",
-                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "High-quality headphones with noise cancellation and premium sound quality. Perfect for music lovers and professionals alike.",
-                date: "Published: May 15, 2023"
+                title: "Simple Login Page",
+                price: "$0/Free",
+                image: "images/1.png",
+                description: "This is a modern, responsive HTML login page with a clean and user-friendly design. It features a centered login form with a gradient background, rounded corners, and subtle animations. The form includes fields for username/email and password, styled with a focus effect and a prominent login button. A footer link allows users to navigate to a sign-up page. The page is styled using CSS with a gradient body background, shadow effects, and a custom watermark in the bottom-right corner. The layout is optimized for various screen sizes using a flexible container and viewport meta tag.",
+                date: "Published: May 29, 2025",
+                rating: 4.5,
+                file: "SimpleLoginPage.zip"
             },
             {
                 id: 2,
-                title: "Wireless Keyboard",
-                price: "$89.99",
-                image: "https://images.unsplash.com/photo-1558040456-fbf883f7df60?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "Ergonomic wireless keyboard with long battery life and comfortable typing experience. Compatible with all major operating systems.",
-                date: "Published: April 22, 2023"
+                title: "Simple Interactive To-Do List",
+                price: "$0/Free",
+                image: "images/2.png",
+                description: "A lightweight and user-friendly web-based To-Do List application that allows users to add, edit, delete, and mark tasks as complete. Tasks are stored using localStorage to persist across browser sessions. The app includes an optional due date field for each task and features a clean, modern card-style design with hover effects. A permanent watermark at the bottom ensures credit to the original creator.",
+                date: "Published: May 29, 2025",
+                rating: 4,
+                file: "Simple Interactive To-Do List.zip"
             },
-            {
+                        {
                 id: 3,
-                title: "Smart Watch",
-                price: "$249.99",
-                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "Feature-packed smartwatch with health monitoring, notifications, and customizable watch faces. Water-resistant and stylish.",
-                date: "Published: June 5, 2023"
-            },
-            {
-                id: 4,
-                title: "Bluetooth Speaker",
-                price: "$129.99",
-                image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "Portable Bluetooth speaker with 20-hour battery life and rich, clear sound. Perfect for outdoor adventures and home use.",
-                date: "Published: March 18, 2023"
-            },
-            {
-                id: 5,
-                title: "Gaming Mouse",
-                price: "$59.99",
-                image: "https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "High-precision gaming mouse with customizable buttons and RGB lighting. Designed for competitive gamers.",
-                date: "Published: February 10, 2023"
-            },
-            {
-                id: 6,
-                title: "External SSD",
-                price: "$149.99",
-                image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "1TB external SSD with ultra-fast transfer speeds. Compact and durable design perfect for professionals on the go.",
-                date: "Published: July 8, 2023"
+                title: "Responsive Photo Gallery with Lightbox",
+                price: "$0/Free",
+                image: "images/3.png",
+                description: "A fully responsive and interactive photo gallery built using pure HTML, CSS, and JavaScript. This gallery features a clean grid layout, lazy-loaded thumbnails, and a lightbox modal for viewing full-size images with captions. Users can navigate between images using arrow buttons or keyboard keys. Smooth transitions and a permanent watermark “Made By SoumikDev | kbpsSelection” make it both functional and personalized.",
+                date: "Published: May 29, 2025",
+                rating: 4,
+                file: "Responsive Photo Gallery with Lightbox.zip"
             }
         ];
         
@@ -394,6 +544,16 @@
         const backBtn = document.getElementById('back-btn');
         const shareBtn = document.getElementById('share-btn');
         const downloadBtn = document.getElementById('download-btn');
+        const searchInput = document.getElementById('search-input');
+        const fullscreenImage = document.getElementById('fullscreen-image');
+        const fullscreenImageContent = document.getElementById('fullscreen-image-content');
+        const closeFullscreen = document.querySelector('.close-fullscreen');
+        const scrollThumb = document.getElementById('scroll-thumb');
+        
+        // Current state
+        let currentProductId = null;
+        let filteredProducts = [...products];
+        let scrollHistory = [];
         
         // Toggle Sidebar
         menuBtn.addEventListener('click', () => {
@@ -413,26 +573,108 @@
             window.scrollBy({ top: 300, behavior: 'smooth' });
         });
         
+        // Long Scrollbar functionality
+        let isDragging = false;
+        
+        scrollThumb.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            document.addEventListener('mousemove', handleScrollDrag);
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', handleScrollDrag);
+            });
+        });
+        
+        function handleScrollDrag(e) {
+            if (!isDragging) return;
+            
+            const scrollbar = scrollThumb.parentElement;
+            const scrollbarRect = scrollbar.getBoundingClientRect();
+            const maxTop = scrollbarRect.height - scrollThumb.offsetHeight;
+            
+            let newTop = e.clientY - scrollbarRect.top - (scrollThumb.offsetHeight / 2);
+            newTop = Math.max(0, Math.min(maxTop, newTop));
+            
+            scrollThumb.style.top = `${newTop}px`;
+            
+            // Calculate scroll position
+            const scrollRatio = newTop / maxTop;
+            const documentHeight = document.body.scrollHeight - window.innerHeight;
+            window.scrollTo({
+                top: documentHeight * scrollRatio,
+                behavior: 'auto'
+            });
+        }
+        
+        // Update scroll thumb position on window scroll
+        window.addEventListener('scroll', updateScrollThumb);
+        
+        function updateScrollThumb() {
+            const scrollbar = scrollThumb.parentElement;
+            const scrollbarRect = scrollbar.getBoundingClientRect();
+            const maxTop = scrollbarRect.height - scrollThumb.offsetHeight;
+            
+            const scrollRatio = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+            const newTop = scrollRatio * maxTop;
+            
+            scrollThumb.style.top = `${newTop}px`;
+        }
+        
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
+                }
+            }
+            return stars;
+        }
+        
         // Generate Product Cards
         function generateProductCards() {
             mainContent.innerHTML = '';
             
-            products.forEach(product => {
+            if (filteredProducts.length === 0) {
+                mainContent.innerHTML = '<div class="no-results">No products found matching your search.</div>';
+                return;
+            }
+            
+            filteredProducts.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.dataset.id = product.id;
                 
                 productCard.innerHTML = `
-                    <img class="product-image" src="${product.image}" alt="${product.title}">
+                    <div class="product-image-container">
+                        <img class="product-image" src="${product.image}" alt="${product.title}">
+                        <button class="view-fullscreen">View Fullscreen</button>
+                    </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.title}</h3>
                         <div class="product-price">${product.price}</div>
+                        <div class="product-rating">${generateStarRating(product.rating)}</div>
                         <button class="get-btn">Get</button>
                     </div>
                 `;
                 
-                productCard.addEventListener('click', () => {
-                    showProductPage(product.id);
+                // Click on card to view product
+                productCard.addEventListener('click', (e) => {
+                    // Don't trigger if clicking on the fullscreen button
+                    if (!e.target.classList.contains('view-fullscreen')) {
+                        showProductPage(product.id);
+                    }
+                });
+                
+                // Fullscreen image view
+                const fullscreenBtn = productCard.querySelector('.view-fullscreen');
+                fullscreenBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showFullscreenImage(product.image);
                 });
                 
                 mainContent.appendChild(productCard);
@@ -441,26 +683,101 @@
         
         // Show Product Page
         function showProductPage(productId) {
+            // Add current state to history before changing
+            scrollHistory.push({
+                scrollY: window.scrollY,
+                view: productPage.classList.contains('active') ? 'product' : 'grid'
+            });
+            
             const product = products.find(p => p.id === productId);
             
             if (product) {
+                currentProductId = productId;
+                
                 document.getElementById('product-page-image').src = product.image;
                 document.getElementById('product-page-title').textContent = product.title;
                 document.getElementById('product-page-price').textContent = product.price;
+                document.getElementById('product-page-rating').innerHTML = generateStarRating(product.rating);
                 document.getElementById('product-page-date').textContent = product.date;
                 document.getElementById('product-page-description').textContent = product.description;
                 
                 mainContent.style.display = 'none';
                 productPage.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Update URL without reloading
+                history.pushState({ productId }, '', `#product-${productId}`);
             }
         }
         
         // Back to Products
         backBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            mainContent.style.display = 'grid';
-            productPage.classList.remove('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            if (scrollHistory.length > 0) {
+                const previousState = scrollHistory.pop();
+                
+                mainContent.style.display = 'grid';
+                productPage.classList.remove('active');
+                
+                if (previousState.view === 'grid') {
+                    window.scrollTo({ top: previousState.scrollY, behavior: 'auto' });
+                }
+            } else {
+                // Fallback if no history
+                mainContent.style.display = 'grid';
+                productPage.classList.remove('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            // Update URL
+            history.pushState({}, '', window.location.pathname);
+        });
+        
+        // Handle browser back button
+        window.addEventListener('popstate', (e) => {
+            const hash = window.location.hash;
+            
+            if (hash && hash.startsWith('#product-')) {
+                const productId = parseInt(hash.replace('#product-', ''));
+                showProductPage(productId);
+            } else {
+                if (productPage.classList.contains('active')) {
+                    mainContent.style.display = 'grid';
+                    productPage.classList.remove('active');
+                    
+                    if (scrollHistory.length > 0) {
+                        const previousState = scrollHistory[scrollHistory.length - 1];
+                        if (previousState.view === 'grid') {
+                            window.scrollTo({ top: previousState.scrollY, behavior: 'auto' });
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Fullscreen Image Viewer
+        function showFullscreenImage(imageSrc) {
+            fullscreenImageContent.src = imageSrc;
+            fullscreenImage.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        closeFullscreen.addEventListener('click', () => {
+            fullscreenImage.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        fullscreenImage.addEventListener('click', (e) => {
+            if (e.target === fullscreenImage) {
+                fullscreenImage.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Product image click to view fullscreen
+        document.getElementById('product-page-image').addEventListener('click', function() {
+            showFullscreenImage(this.src);
         });
         
         // Share Button
@@ -468,8 +785,8 @@
             if (navigator.share) {
                 navigator.share({
                     title: document.getElementById('product-page-title').textContent,
-                    text: 'Check out this product from kbpsSelection!',
-                    url: window.location.href.split('#')[0] + `#product-${document.querySelector('.product-card[data-id]').dataset.id}`
+                    text: '🔥Best Bumper Offer of 2025 Check Out Now For amazing  Marges | kbpsSelection!',
+                    url: window.location.href.split('#')[0] + `#product-${currentProductId}`
                 }).catch(err => {
                     console.log('Error sharing:', err);
                 });
@@ -477,7 +794,7 @@
                 // Fallback for browsers that don't support Web Share API
                 alert('Share link copied to clipboard!');
                 const tempInput = document.createElement('input');
-                tempInput.value = window.location.href.split('#')[0] + `#product-${document.querySelector('.product-card[data-id]').dataset.id}`;
+                tempInput.value = window.location.href.split('#')[0] + `#product-${currentProductId}`;
                 document.body.appendChild(tempInput);
                 tempInput.select();
                 document.execCommand('copy');
@@ -487,13 +804,40 @@
         
         // Download Button
         downloadBtn.addEventListener('click', () => {
-            // In a real implementation, this would download the actual product file
-            // For demo purposes, we'll simulate a download
-            alert('Download started! (This is a demo. In a real app, the product file would download.)');
+            const product = products.find(p => p.id === currentProductId);
+            if (product) {
+                // Simulate download from Files/productX.zip
+                const link = document.createElement('a');
+                link.href = `Files/${product.file}`;
+                link.download = product.file;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // In a real implementation, you would need actual files in the Files folder
+                console.log(`Downloading: Files/${product.file}`);
+            }
+        });
+        
+        // Search Functionality
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredProducts = [...products];
+            } else {
+                filteredProducts = products.filter(product => 
+                    product.title.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            generateProductCards();
         });
         
         // Initialize the page
         generateProductCards();
+        updateScrollThumb();
         
         // Check URL hash for product page
         window.addEventListener('DOMContentLoaded', () => {
