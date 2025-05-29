@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - kbpsSelection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Using the exact same CSS styles from your original code */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: #34495e;
+            color: white;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            right: 0;
+        }
+        
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            margin-top: 3rem;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: color 0.3s;
+        }
+        
+        .sidebar-menu a:hover {
+            color: #3498db;
+        }
+        
+        /* About Page Specific Styles */
+        .about-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .about-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .about-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .about-subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .about-content {
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .about-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .about-features {
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #3498db;
+            margin-right: 1rem;
+            margin-top: 0.3rem;
+        }
+        
+        .feature-content h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .about-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        /* Scroll Controls (same as original) */
+        .scroll-controls {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .scroll-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        
+        .scroll-btn:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Menu Button -->
+    <header>
+        <div class="logo"><a href="index.html" style="text-decoration: none; color: white;">kbpsSelection</a></div>
+        <button class="menu-btn">☰</button>
+    </header>
+    
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <button class="sidebar-close">×</button>
+        <div class="sidebar-menu">
+            <a href="index.html">Home</a>
+            <a href="#">About Us</a>
+            <a href="#help">Help Center</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfFJNGBiU-ndHnGmMmuwYWGhtEB_mz-G2WclMzJTq3W6obgJw/viewform?usp=dialog">Feedback</a>
+        </div>
+    </div>
+    
+    <!-- Scroll Controls -->
+    <div class="scroll-controls">
+        <button class="scroll-btn" id="scroll-up">↑</button>
+        <button class="scroll-btn" id="scroll-down">↓</button>
+    </div>
+    
+    <!-- About Us Content -->
+    <div class="about-container">
+        <div class="about-header">
+            <h1 class="about-title">About kbpsSelection</h1>
+            <p class="about-subtitle">Your trusted source for quality digital products</p>
+        </div>
+        
+        <div class="about-content">
+            <p>Welcome to kbpsSelection, a platform dedicated to providing high-quality digital resources for developers, designers, and creators. We carefully curate our collection to ensure you get only the best tools and templates for your projects.</p>
+            
+            <p>Our mission is to simplify your workflow by offering ready-to-use solutions that save you time and effort. Whether you're a beginner or an experienced professional, our products are designed to help you achieve your goals faster.</p>
+        </div>
+        
+        <div class="about-features">
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="feature-content">
+                    <h3>Quality Assurance</h3>
+                    <p>Every product in our collection undergoes rigorous testing to ensure it meets our high standards before being made available to you.</p>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="feature-content">
+                    <h3>Affordable Pricing</h3>
+                    <p>We believe quality shouldn't break the bank. Many of our products are available for free or at very reasonable prices.</p>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                <div class="feature-content">
+                    <h3>User Support</h3>
+                    <p>Our team is committed to providing excellent support to help you get the most out of our products.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="about-footer">
+            <p>Design and Host by SoumikDev</p>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const menuBtn = document.querySelector('.menu-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarClose = document.querySelector('.sidebar-close');
+        const scrollUpBtn = document.getElementById('scroll-up');
+        const scrollDownBtn = document.getElementById('scroll-down');
+        
+        // Toggle Sidebar
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+        });
+        
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+        });
+        
+        // Scroll Controls
+        scrollUpBtn.addEventListener('click', () => {
+            window.scrollBy({ top: -300, behavior: 'smooth' });
+        });
+        
+        scrollDownBtn.addEventListener('click', () => {
+            window.scrollBy({ top: 300, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
