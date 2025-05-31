@@ -176,6 +176,27 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .free-badge {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .paid-badge {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
         .product-image-container {
             position: relative;
             width: 100%;
@@ -207,6 +228,7 @@
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.3s;
+            z-index: 2;
         }
         
         .product-card:hover .view-fullscreen {
@@ -267,6 +289,15 @@
             display: block;
         }
         
+        .product-page-badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
         .product-page-image-container {
             position: relative;
             width: 100%;
@@ -312,6 +343,29 @@
             margin-bottom: 2rem;
         }
         
+        .product-benefits {
+            margin-bottom: 2rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .benefit-available {
+            color: #2ecc71;
+        }
+        
+        .benefit-not-available {
+            color: #e74c3c;
+        }
+        
         .action-buttons {
             display: flex;
             gap: 1rem;
@@ -342,6 +396,15 @@
         
         .download-btn:hover {
             background-color: #27ae60;
+        }
+        
+        .buy-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .buy-btn:hover {
+            background-color: #c0392b;
         }
         
         .back-btn {
@@ -480,14 +543,20 @@
         <div class="product-page-image-container">
             <img class="product-page-image" id="product-page-image" src="" alt="Product Image">
         </div>
+        <div id="product-page-badge" class="product-page-badge"></div>
         <h1 class="product-page-title" id="product-page-title">Product Title</h1>
         <div class="product-page-price" id="product-page-price">$0.00</div>
         <div class="product-page-rating" id="product-page-rating"></div>
         <div class="product-page-date" id="product-page-date">Published: Jan 1, 2023</div>
         <p class="product-page-description" id="product-page-description">Product description goes here.</p>
-        <div class="action-buttons">
+        
+        <div class="product-benefits" id="product-benefits">
+            <!-- Benefits will be added by JavaScript -->
+        </div>
+        
+        <div class="action-buttons" id="action-buttons">
             <button class="action-btn share-btn" id="share-btn">Share</button>
-            <button class="action-btn download-btn" id="download-btn">Download</button>
+            <!-- Download or Buy button will be added by JavaScript -->
         </div>
         <button class="back-btn" id="back-btn">Back To Products</button>
     </div>
@@ -503,35 +572,60 @@
         const products = [
             {
                 id: 1,
-                title: "Simple Login Page",
+                title: "Simple Login Page (Free)",
                 price: "$0/Free",
                 image: "images/1.png",
                 description: "This is a modern, responsive HTML login page with a clean and user-friendly design. It features a centered login form with a gradient background, rounded corners, and subtle animations. The form includes fields for username/email and password, styled with a focus effect and a prominent login button. A footer link allows users to navigate to a sign-up page. The page is styled using CSS with a gradient body background, shadow effects, and a custom watermark in the bottom-right corner. The layout is optimized for various screen sizes using a flexible container and viewport meta tag.",
                 date: "Published: May 29, 2025",
                 rating: 4.5,
-                file: "simple-login-page.zip"
+                file: "simple-login-page.zip",
+                type: "free",
+                benefits: {
+                    watermark: true,
+                    support: true,
+                    indexFile: true
+                }
             },
             {
                 id: 2,
-                title: "Simple Interactive To-Do List",
+                title: "Simple Interactive To-Do List (Free)",
                 price: "$0/Free",
                 image: "images/2.png",
                 description: "A lightweight and user-friendly web-based To-Do List application that allows users to add, edit, delete, and mark tasks as complete. Tasks are stored using localStorage to persist across browser sessions. The app includes an optional due date field for each task and features a clean, modern card-style design with hover effects. A permanent watermark at the bottom ensures credit to the original creator.",
                 date: "Published: May 29, 2025",
-                rating: 4,
-                file: "simple-interactive-to-dolist.zip"
+                rating: 3.5,
+                file: "simple-interactive-to-dolist.zip",
+                type: "free",
+                benefits: {
+                    watermark: true,
+                    support: true,
+                    indexFile: true
+                }
             },
-                        {
+            {
                 id: 3,
-                title: "Responsive Photo Gallery with Lightbox",
+                title: "Responsive Photo Gallery with Lightbox (Free)",
                 price: "$0/Free",
                 image: "images/3.png",
                 description: "A fully responsive and interactive photo gallery built using pure HTML, CSS, and JavaScript. This gallery features a clean grid layout, lazy-loaded thumbnails, and a lightbox modal for viewing full-size images with captions. Users can navigate between images using arrow buttons or keyboard keys. Smooth transitions and a permanent watermark “Made By SoumikDev | kbpsSelection” make it both functional and personalized.",
                 date: "Published: May 29, 2025",
-                rating: 4,
-                file: "responsive-photo-gallery-with.zip"
-            }
+                rating: 5,
+                file: "responsive-photo-gallery-with.zip",
+                type: "free",
+                benefits: {
+                    watermark: true,
+                    support: true,
+                    indexFile: true
+                }
+            },
         ];
+        
+        // Sort products with paid items first
+        products.sort((a, b) => {
+            if (a.type === 'paid' && b.type !== 'paid') return -1;
+            if (a.type !== 'paid' && b.type === 'paid') return 1;
+            return 0;
+        });
         
         // DOM Elements
         const menuBtn = document.querySelector('.menu-btn');
@@ -543,7 +637,7 @@
         const productPage = document.getElementById('product-page');
         const backBtn = document.getElementById('back-btn');
         const shareBtn = document.getElementById('share-btn');
-        const downloadBtn = document.getElementById('download-btn');
+        const actionButtons = document.getElementById('action-buttons');
         const searchInput = document.getElementById('search-input');
         const fullscreenImage = document.getElementById('fullscreen-image');
         const fullscreenImageContent = document.getElementById('fullscreen-image-content');
@@ -635,6 +729,72 @@
             return stars;
         }
         
+        // Generate benefits HTML
+        function generateBenefitsHTML(benefits, isPaid) {
+            let html = '<h3 style="margin-bottom: 1rem;">Product Benefits:</h3>';
+            
+            if (isPaid) {
+                html += `
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-available"><i class="fas fa-check-circle"></i></span>
+                        <span>No Watermark</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-available"><i class="fas fa-check-circle"></i></span>
+                        <span>Customer Support</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-available"><i class="fas fa-check-circle"></i></span>
+                        <span>Free Index File</span>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-not-available"><i class="fas fa-times-circle"></i></span>
+                        <span>Contains Watermark</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-available"><i class="fas fa-check-circle"></i></span>
+                        <span>Customer Support</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon benefit-available"><i class="fas fa-check-circle"></i></span>
+                        <span>Free Index File</span>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+        
+        // Generate action buttons
+        function generateActionButtons(isPaid, productId, productTitle) {
+            actionButtons.innerHTML = '';
+            
+            // Always add share button
+            const shareBtn = document.createElement('button');
+            shareBtn.className = 'action-btn share-btn';
+            shareBtn.textContent = 'Share';
+            shareBtn.addEventListener('click', () => shareProduct(productId));
+            actionButtons.appendChild(shareBtn);
+            
+            // Add download or buy button based on product type
+            if (isPaid) {
+                const buyBtn = document.createElement('button');
+                buyBtn.className = 'action-btn buy-btn';
+                buyBtn.textContent = 'Buy Now';
+                buyBtn.addEventListener('click', () => buyProduct(productId, productTitle));
+                actionButtons.appendChild(buyBtn);
+            } else {
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'action-btn download-btn';
+                downloadBtn.textContent = 'Download';
+                downloadBtn.addEventListener('click', () => downloadProduct(productId));
+                actionButtons.appendChild(downloadBtn);
+            }
+        }
+        
         // Generate Product Cards
         function generateProductCards() {
             mainContent.innerHTML = '';
@@ -649,6 +809,11 @@
                 productCard.className = 'product-card';
                 productCard.dataset.id = product.id;
                 
+                // Add badge based on product type
+                const badge = document.createElement('div');
+                badge.className = `product-badge ${product.type === 'paid' ? 'paid-badge' : 'free-badge'}`;
+                badge.textContent = product.type === 'paid' ? 'PAID' : 'FREE';
+                
                 productCard.innerHTML = `
                     <div class="product-image-container">
                         <img class="product-image" src="${product.image}" alt="${product.title}">
@@ -658,9 +823,12 @@
                         <h3 class="product-title">${product.title}</h3>
                         <div class="product-price">${product.price}</div>
                         <div class="product-rating">${generateStarRating(product.rating)}</div>
-                        <button class="get-btn">Get</button>
+                        <button class="get-btn">${product.type === 'paid' ? 'Buy' : 'Download'}</button>
                     </div>
                 `;
+                
+                // Add badge to card
+                productCard.insertBefore(badge, productCard.firstChild);
                 
                 // Click on card to view product
                 productCard.addEventListener('click', (e) => {
@@ -700,6 +868,17 @@
                 document.getElementById('product-page-rating').innerHTML = generateStarRating(product.rating);
                 document.getElementById('product-page-date').textContent = product.date;
                 document.getElementById('product-page-description').textContent = product.description;
+                
+                // Set badge
+                const badge = document.getElementById('product-page-badge');
+                badge.className = `product-page-badge ${product.type === 'paid' ? 'paid-badge' : 'free-badge'}`;
+                badge.textContent = product.type === 'paid' ? 'PAID PRODUCT' : 'FREE PRODUCT';
+                
+                // Set benefits
+                document.getElementById('product-benefits').innerHTML = generateBenefitsHTML(product.benefits, product.type === 'paid');
+                
+                // Set action buttons
+                generateActionButtons(product.type === 'paid', product.id, product.title);
                 
                 mainContent.style.display = 'none';
                 productPage.classList.add('active');
@@ -780,13 +959,16 @@
             showFullscreenImage(this.src);
         });
         
-        // Share Button
-        shareBtn.addEventListener('click', () => {
+        // Share Product
+        function shareProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
             if (navigator.share) {
                 navigator.share({
-                    title: document.getElementById('product-page-title').textContent,
-                    text: '🔥Best Bumper Offer of 2025 Check Out Now For amazing  Marges | kbpsSelection!',
-                    url: window.location.href.split('#')[0] + `#product-${currentProductId}`
+                    title: product.title,
+                    text: '🔥Best Bumper Offer of 2025 Check Out Now For amazing Marges | kbpsSelection!',
+                    url: window.location.href.split('#')[0] + `#product-${productId}`
                 }).catch(err => {
                     console.log('Error sharing:', err);
                 });
@@ -794,17 +976,17 @@
                 // Fallback for browsers that don't support Web Share API
                 alert('Share link copied to clipboard!');
                 const tempInput = document.createElement('input');
-                tempInput.value = window.location.href.split('#')[0] + `#product-${currentProductId}`;
+                tempInput.value = window.location.href.split('#')[0] + `#product-${productId}`;
                 document.body.appendChild(tempInput);
                 tempInput.select();
                 document.execCommand('copy');
                 document.body.removeChild(tempInput);
             }
-        });
+        }
         
-        // Download Button
-        downloadBtn.addEventListener('click', () => {
-            const product = products.find(p => p.id === currentProductId);
+        // Download Product
+        function downloadProduct(productId) {
+            const product = products.find(p => p.id === productId);
             if (product) {
                 // Simulate download from Files/productX.zip
                 const link = document.createElement('a');
@@ -817,7 +999,15 @@
                 // In a real implementation, you would need actual files in the Files folder
                 console.log(`Downloading: Files/${product.file}`);
             }
-        });
+        }
+        
+        // Buy Product (redirect to WhatsApp)
+        function buyProduct(productId, productTitle) {
+            const whatsappNumber = '7439044160';
+            const message = `I want to buy: ${productTitle} (ID: ${productId})\n\nPlease provide payment details.`;
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+        }
         
         // Search Functionality
         searchInput.addEventListener('input', () => {
